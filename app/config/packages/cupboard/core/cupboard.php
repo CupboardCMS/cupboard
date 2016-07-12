@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
 
 	/*
 	|--------------------------------------------------------------------------
@@ -83,5 +83,5 @@ return array(
 	| Checks if this is installed in cupboard/cupboard
 	|
 	*/
-	'in_framework' => true
-);
+	'in_framework' => false
+];

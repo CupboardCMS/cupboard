@@ -23,14 +23,13 @@
 	"autoload": {
 		"classmap": [
 			"app/commands",
+                        "app/config/ConfigWriter.php",
                         "app/controllers",
+                        "app/models",
                         "app/database/migrations",
                         "app/database/seeds",
                         "app/tests/TestCase.php"
-		],
-		"psr-4": {
-			"Cupboard\\": "app/"
-		}
+		]
 	},
 	"scripts": {
 		"post-install-cmd": [

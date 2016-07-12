@@ -1,5 +1,7 @@
 <?php
 
+use Config;
+use October\Rain\Config\ConfigWriter;
 use Cupboard\Core\Repositories\UserRepositoryInterface;
 
 class InstallController extends Controller {
@@ -10,6 +12,11 @@ class InstallController extends Controller {
 	 * @var Cupboard\UserRepositoryInterface
 	 */
 	protected $users;
+
+        /**
+         * @var October\Rain\Config\ConfigWriter
+         */
+        protected $configWriter;
 
 	/**
 	 * Create a new API User controller.
@@ -25,12 +32,13 @@ class InstallController extends Controller {
 		$presence->setConnection('cupboard');
 
 		// If the config is marked as installed then bail with a 404.
-		if (Config::get("core::cupboard.installed") === true)
+		if (Config::get("core::cupboard.installed") == 'true')
 		{
 			return App::abort(404, 'Page not found');
 		}
 
 		$this->users = $users;
+                $this->configWriter = new ConfigWriter;
 	}
 
 	/**
@@ -50,10 +58,13 @@ class InstallController extends Controller {
 	 */
 	public function publishAndMigrate()
 	{
+                define('STDIN',fopen("php://stdin","r"));
+
 		$artisan = Artisan::call(
 			'migrate',
 			array(
-				'--env' => App::environment(),
+				'--force' => true,
+                                '--env' => App::environment(),
 				'--database' => 'cupboard',
 				'--package' => 'cupboard/core'
 			)
@@ -149,14 +160,32 @@ class InstallController extends Controller {
 	 */
 	protected function setCupboardConfig($title, $theme, $per_page)
 	{
-		$path = $this->getConfigFile('cupboard.php');
+		$path = $this->getConfigFile('cupboard');
 		$content = str_replace(
 			array('##title##', '##theme##', "'##per_page##'", "'##installed##'"),
 			array(addslashes($title), $theme, (int) $per_page, 'true'),
 			File::get($path)
 		);
-		return File::put($path, $content);
+		
+                $this->writeToConfig('cupboard', ['title' => addslashes($title)]);
+                $this->writeToConfig('cupboard', ['theme' => $theme]);
+                $this->writeToConfig('cupboard', ['per_page' => (int) $per_page]);
+                $this->writeToConfig('cupboard', ['installed' => 'true']);
+
 	}
+
+
+        protected function writeToConfig($file, $values)
+        {
+                $configFile = $this->getConfigFile($file);
+                var_dump(Config::get("core::cupboard.installed"));
+                foreach ($values as $key => $value) {
+                    Config::set($file.'.'.$key, $value);
+                }
+                
+                $this->configWriter->toFile($configFile, $values);
+        }
+
 
 	/**
 	 * Get the config file
@@ -166,13 +195,14 @@ class InstallController extends Controller {
 	 * @param string $file
 	 * @return string
 	 */
-	protected function getConfigFile($file)
+	protected function getConfigFile($name = 'cupboard')
 	{
-		if (file_exists(app_path().'/config/packages/cupboard/core/'.App::environment().'/'.$file))
+                $name .= '.php';
+		if (file_exists(app_path().'/config/packages/cupboard/core/'.App::environment().'/'.$name))
 		{
-			return app_path().'/config/packages/cupboard/core/'.App::environment().'/'.$file;
+			return app_path().'/config/packages/cupboard/core/'.App::environment().'/'.$name;
 		}
 
-		return app_path().'/config/packages/cupboard/core/'.$file;
+		return app_path().'/config/packages/cupboard/core/'.$name;
 	}
 }
