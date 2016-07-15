@@ -1,41 +1,23 @@
-<?php namespace Cupboard\Core\Controllers;
-
-use View, Config;
-use Cupboard\Core\Repositories\PostRepositoryInterface;
+<?php
 
 class HomeController extends BaseController {
 
-	/**
-	 * The post repository implementation.
-	 *
-	 * @var Cupboard\PostRepositoryInterface
-	 */
-	protected $posts;
+	/*
+	|--------------------------------------------------------------------------
+	| Default Home Controller
+	|--------------------------------------------------------------------------
+	|
+	| You may wish to use controllers instead of, or in addition to, Closure
+	| based routes. That's great! Here is an example controller method to
+	| get you started. To route to this controller, just add the route:
+	|
+	|	Route::get('/', 'HomeController@showWelcome');
+	|
+	*/
 
-	/**
-	 * Create a new Home controller instance.
-	 *
-	 * @param PostRepositoryInterface $posts
-	 *
-	 * @return HomeController
-	 */
-	public function __construct(PostRepositoryInterface $posts)
+	public function showWelcome()
 	{
-		parent::__construct();
-
-		$this->posts = $posts;
-	}
-
-	/**
-	 * Get the Cupboard index.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-		$posts = $this->posts->active(Config::get('core::cupboard.per_page'));
-
-		return View::make($this->theme.'.index', compact('posts'));
+		return View::make('hello');
 	}
 
 }
