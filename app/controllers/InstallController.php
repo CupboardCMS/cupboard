@@ -32,7 +32,7 @@ class InstallController extends Controller {
 		$presence->setConnection('cupboard');
 
 		// If the config is marked as installed then bail with a 404.
-		if (Config::get("core::cupboard.installed") == 'true')
+	        if (Config::get("core::cupboard.installed") === true)
 		{
 			return App::abort(404, 'Page not found');
 		}
@@ -48,7 +48,7 @@ class InstallController extends Controller {
 	 */
 	public function start()
 	{
-		return View::make('admin.installer.step1');
+	         return View::make('admin.installer.step1');
 	}
 
 	/**
@@ -140,13 +140,16 @@ class InstallController extends Controller {
 	 */
 	public function updateConfig()
 	{
+                define('STDIN',fopen("php://stdin","r"));
 		$this->setCupboardConfig(
 			Input::get('title', 'Site Name'),
 			Input::get('theme', 'Default'),
 			Input::get('per_page', 5)
 		);
 
-		return View::make('admin.installer.complete');
+                Cache::add('cupboard.installed', 'true', 60);
+
+                return View::make('admin.installer.complete');
 	}
 
 	/**
@@ -161,16 +164,11 @@ class InstallController extends Controller {
 	protected function setCupboardConfig($title, $theme, $per_page)
 	{
 		$path = $this->getConfigFile('cupboard');
-		$content = str_replace(
-			array('##title##', '##theme##', "'##per_page##'", "'##installed##'"),
-			array(addslashes($title), $theme, (int) $per_page, 'true'),
-			File::get($path)
-		);
 		
                 $this->writeToConfig('cupboard', ['title' => addslashes($title)]);
                 $this->writeToConfig('cupboard', ['theme' => $theme]);
                 $this->writeToConfig('cupboard', ['per_page' => (int) $per_page]);
-                $this->writeToConfig('cupboard', ['installed' => 'true']);
+                $this->writeToConfig('cupboard', ['installed' => true]);
 
 	}
 
@@ -178,7 +176,6 @@ class InstallController extends Controller {
         protected function writeToConfig($file, $values)
         {
                 $configFile = $this->getConfigFile($file);
-                var_dump(Config::get("core::cupboard.installed"));
                 foreach ($values as $key => $value) {
                     Config::set($file.'.'.$key, $value);
                 }

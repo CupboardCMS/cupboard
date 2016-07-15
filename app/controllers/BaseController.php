@@ -1,6 +1,4 @@
-<?php namespace Cupboard\Core\Controllers;
-
-use Controller, Config, View, Validator, Cupboard;
+<?php
 
 class BaseController extends Controller {
 
@@ -9,33 +7,25 @@ class BaseController extends Controller {
 	 *
 	 * @var string
 	 */
-	protected $theme = 'default';
-
-	protected $auth = 'default';
+	protected $theme;
 
 	/**
-	 * Create the base controller instance.
+	 * The posts per page
 	 *
-	 * @return BaseController
+	 * @var int
 	 */
+	protected $per_page;
+
 	public function __construct()
 	{
-		$this->auth = Cupboard::getCupboardAuth();
-
-		$this->theme = Config::get('core::cupboard.theme');
-
-		$presence = Validator::getPresenceVerifier();
-		$presence->setConnection('cupboard');
-
-		// Redirect to /install if in framework and not installed
-		if (Config::get('core::cupboard.in_framework') == true) {
-
-			if (Config::get("core::cupboard.installed") != 'true')
-			{
-				header('Location: install');
-				exit;
-			}
+		if (Config::get("wardrobe.installed") !== true)
+		{
+			return Redirect::to('install');
 		}
+
+		$this->theme = Config::get('wardrobe.theme', 'default');
+
+		$this->per_page = Config::get('wardrobe.per_page', 10);
 	}
 
 	/**
