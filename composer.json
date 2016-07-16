@@ -33,6 +33,8 @@
 	},
 	"scripts": {
 		"post-install-cmd": [
+                        "php artisan key:generate",
+                        "php artisan cupboard:themes",
 			"php artisan clear-compiled",
 			"php artisan optimize"
 		],

@@ -1,6 +1,6 @@
 <?php
 
-use Config;
+use Schema, Config;
 use October\Rain\Config\ConfigWriter;
 use Cupboard\Core\Repositories\UserRepositoryInterface;
 
@@ -31,12 +31,6 @@ class InstallController extends Controller {
 		$presence = Validator::getPresenceVerifier();
 		$presence->setConnection('cupboard');
 
-		// If the config is marked as installed then bail with a 404.
-	        if (Config::get("core::cupboard.installed") === true)
-		{
-			return App::abort(404, 'Page not found');
-		}
-
 		$this->users = $users;
                 $this->configWriter = new ConfigWriter;
 	}
@@ -48,7 +42,13 @@ class InstallController extends Controller {
 	 */
 	public function start()
 	{
-	         return View::make('admin.installer.step1');
+                 // If the config is marked as installed then bail with a 404.
+                 if (Schema::hasTable('services'))
+                 {
+                        return App::abort(404, 'Page not found');
+                 }
+                 else
+                        return View::make('admin.installer.step1');
 	}
 
 	/**
@@ -92,7 +92,13 @@ class InstallController extends Controller {
 	 */
 	public function createUser()
 	{
-		return View::make('admin.installer.user');
+                 $installed = DB::table('services')->where('feature', 'installed')->pluck('enabled');
+                 if ($installed)
+                 {
+                        return App::abort(404, 'Page not found');
+                 }
+                 else
+		        return View::make('admin.installer.user');
 	}
 
 	/**
@@ -132,7 +138,14 @@ class InstallController extends Controller {
 	 */
 	public function editConfig()
 	{
-		return View::make('admin.installer.config');
+
+                 $installed = DB::table('services')->where('feature', 'installed')->pluck('enabled');
+                 if ($installed)
+                 {
+                        return App::abort(404, 'Page not found');
+                 }
+                 else
+		        return View::make('admin.installer.config');
 	}
 
 	/**
@@ -148,6 +161,13 @@ class InstallController extends Controller {
 		);
 
                 Cache::add('cupboard.installed', 'true', 60);
+
+                DB::table('services')->insert(
+			array(
+                          'id'=>'1',
+			  'feature'=>'installed',
+			  'enabled'=>'1')
+                        );
 
                 return View::make('admin.installer.complete');
 	}
