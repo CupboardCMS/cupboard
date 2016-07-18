@@ -6,19 +6,9 @@ Cupboard is designed to be a very minimal blogging platform with the primary foc
 
 ### Libraries
 
-Cupboard utilizes:
-
-Framework
-![Marionette](http://marionettejs.com/images/marionette.svg) & ![Backbone](http://backbonejs.org/docs/images/backbone.png)
-
-File drag & drop:
+![Marionette](http://marionettejs.com/images/marionette.svg)
+![Backbone](http://backbonejs.org/docs/images/backbone.png)
 ![Dropzone](http://www.dropzonejs.com/images/new-logo.svg)   
-![jStorage](https://github.com/andris9/jStorage)
-
-Date formatting:
-![Momentjs](http://momentjs.com/)
-
-Tags:
 ![Selectize](http://selectize.github.io/selectize.js/images/logo@2x.png)
 
 Requirements
